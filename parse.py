@@ -1,4 +1,7 @@
 import csv
+import logging
+import os
+import sys
 from dataclasses import dataclass, astuple, fields
 from urllib.parse import urljoin
 
@@ -21,6 +24,16 @@ class Product:
 
 
 PRODUCT_FIELDS = [field.name for field in fields(Product)]
+
+
+logging.basicConfig(
+    level=logging.DEBUG,
+    format="[%(levelname)8s]: %(message)s",
+    handlers=[
+        logging.FileHandler(os.path.join("parser.log")),
+        logging.StreamHandler(sys.stdout)
+    ]
+)
 
 
 def parse_single_product(product_soup: BeautifulSoup) -> Product:
@@ -51,6 +64,7 @@ def get_single_page_products(page_soup: BeautifulSoup) -> [Product]:
 
 
 def get_laptop_products() -> [Product]:
+    logging.info("Start parsing laptops")
     page = requests.get(LAPTOP_URL).content
     first_page_soup = BeautifulSoup(page, "html.parser")
 
@@ -60,6 +74,7 @@ def get_laptop_products() -> [Product]:
     all_products = get_single_page_products(first_page_soup)
 
     for page_num in range(2, num_pages + 1):
+        logging.info(f"Start parsing page #{page_num}")
         page = requests.get(LAPTOP_URL, {"page": page_num}).content
         soup = BeautifulSoup(page, "html.parser")
         all_products.extend(get_single_page_products(soup))
