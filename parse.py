@@ -55,6 +55,8 @@ def parse_hdd_block_prices(product_soup) -> dict[str, float]:
     detail_url = urljoin(BASE_URL, product_soup.select_one(".title")["href"])
     driver = get_driver()
     driver.get(detail_url)
+    driver.maximize_window()
+
     swatches = driver.find_element(By.CLASS_NAME, "swatches")
     buttons = swatches.find_elements(By.TAG_NAME, "button")
 
